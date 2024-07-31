@@ -594,7 +594,7 @@ def export_irnss_data_to_file(receiver, filename):
 # Example usage
 receiver = Receiver()
 
-receiver.import_data("ACCO0020.24O")  # Update the filepath accordingly
+receiver.import_data("ITBR2910.23O")  # Update the filepath accordingly
 
 export_irnss_data_to_file(receiver, "irnss_observation_data.txt")
 
