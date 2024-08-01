@@ -5,27 +5,71 @@ import pandas as pd
 def parse_rinex_file(file_path):
     metadata = {}
     observation_data = []
-    obs_types = [
-        ("C5C", 14, 1, 1),
-        ("L5C", 16, 1, 1),
-        ("D5C", 12, 1, 1),
-        ("S5C", 14, 1, 1),
-        ("C9C", 14, 1, 1),
-        ("L9C", 16, 1, 1),
-        ("D9C", 12, 1, 1),
-        ("S9C", 14, 1, 1),
-    ]
 
     with open(file_path, "r") as file:
         lines = file.readlines()
 
         header_end = False
+        obs_types = []
         for i, line in enumerate(lines):
             if "END OF HEADER" in line:
                 header_end = True
                 header_end_index = i + 1
                 break
-            # ... (same as before for metadata parsing)
+            elif "RINEX VERSION / TYPE" in line:
+                metadata["version"] = line[:9].strip()
+                metadata["file_type"] = line[20:40].strip()
+            elif "PGM / RUN BY / DATE" in line:
+                metadata["program"] = line[:20].strip()
+                metadata["run_by"] = line[20:40].strip()
+                metadata["date"] = line[40:60].strip()
+            elif "MARKER NAME" in line:
+                metadata["marker_name"] = line[:60].strip()
+            elif "MARKER NUMBER" in line:
+                metadata["marker_number"] = line[:60].strip()
+            elif "MARKER TYPE" in line:
+                metadata["marker_type"] = line[:60].strip()
+            elif "OBSERVER / AGENCY" in line:
+                metadata["observer"] = line[:20].strip()
+                metadata["agency"] = line[20:40].strip()
+            elif "REC # / TYPE / VERS" in line:
+                metadata["receiver_number"] = line[:20].strip()
+                metadata["receiver_type"] = line[20:40].strip()
+                metadata["receiver_version"] = line[40:60].strip()
+            elif "ANT # / TYPE" in line:
+                metadata["antenna_number"] = line[:20].strip()
+                metadata["antenna_type"] = line[20:40].strip()
+            elif "APPROX POSITION XYZ" in line:
+                metadata["approx_position_xyz"] = [float(x) for x in line.split()[:3]]
+            elif "ANTENNA: DELTA H/E/N" in line:
+                metadata["antenna_delta_hen"] = [float(x) for x in line.split()[:3]]
+            elif "SYS / # / OBS TYPES" in line:
+                parts = line.split()
+                num_obs_types = int(parts[1])
+                obs_types_line = parts[2:]
+                while len(obs_types_line) < num_obs_types:
+                    i += 1
+                    obs_types_line.extend(lines[i].split())
+                obs_types = obs_types_line[:num_obs_types]
+            elif "SIGNAL STRENGTH UNIT" in line:
+                metadata["signal_strength_unit"] = line[:60].strip()
+            elif "INTERVAL" in line:
+                metadata["interval"] = float(line[:10].strip())
+            elif "TIME OF FIRST OBS" in line:
+                metadata["time_of_first_obs"] = line[:40].strip()
+            elif "TIME OF LAST OBS" in line:
+                metadata["time_of_last_obs"] = line[:40].strip()
+
+        obs_types_specs = {
+            "C5C": (14, 1, 1),
+            "L5C": (16, 1, 1),
+            "D5C": (12, 1, 1),
+            "S5C": (14, 1, 1),
+            "C9C": (14, 1, 1),
+            "L9C": (16, 1, 1),
+            "D9C": (12, 1, 1),
+            "S9C": (14, 1, 1),
+        }
 
         if header_end:
             observation_lines = lines[header_end_index:]
@@ -48,7 +92,10 @@ def parse_rinex_file(file_path):
                         prn = line[index : index + 3].strip()
                         index += 3
 
-                        for obs_type, value_length, lol_length, ssi_length in obs_types:
+                        for obs_type in obs_types:
+                            value_length, lol_length, ssi_length = obs_types_specs[
+                                obs_type
+                            ]
                             value = line[index : index + value_length].strip()
                             value = value.lstrip("0")  # Remove leading zeros
                             index += value_length
