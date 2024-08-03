@@ -27,5 +27,5 @@ This project involves parsing RINEX files and visualizing GPS observation data u
 1. Clone the repository:
 
    ```bash
-   git clone https://your-repository-url.git
+   git clone https://github.com/sumitkushwahji/npl-rinex-project.git
    ```
