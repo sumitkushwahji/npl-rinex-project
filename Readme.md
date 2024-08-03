@@ -13,6 +13,7 @@ This project involves parsing RINEX files and visualizing GPS observation data u
 
 - [Document Link](https://nbmg.unr.edu/staff/pdfs/Blewitt_GL017i003p00199.pdf)
 - [IRNSS ICD Document](https://www.isro.gov.in/media_isro/pdf/Publications/Vispdf/Pdf2017/irnss_sps_icd_version1.1-2017.pdf)
+- [IRNSS Format Link](https://gage.upc.edu/en/learning-materials/library/gnss-format-descriptions)
 
 ## Getting Started
 
